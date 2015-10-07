@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:jms="http://www.springframework.org/schema/jms"
-	xmlns:amq="http://activemq.apache.org/schema/core"
-	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 						http://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/jms 
@@ -15,21 +13,30 @@
 
 	<!-- in memory JMS queue for input -->
 
-	<amq:broker id="inputJmsBroker" useJmx="false" 
-									 persistent="false" 
-									 />
-	
-	<!-- brokerURL may be updated programmatically from test, to validate behavior when there's a problem with JMS queue -->
-	<amq:connectionFactory id="JMSconnectionFactory" brokerURL="vm://localhost" />
+	<amq:broker id="inputJmsBroker" useJmx="false" persistent="false" />
+
+	<!-- brokerURL may be updated programmatically from test, to validate behavior 
+		when there's a problem with JMS queue -->
+	<amq:connectionFactory id="JMSconnectionFactory"
+		brokerURL="vm://localhost" />
 
 
-	<bean id="customerRequestsInputQueue" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg>
-			<value>${customer.requests.input.queue.name}</value>
-		</constructor-arg>
+	<bean id="defaultDestination" class="org.apache.activemq.command.ActiveMQQueue">
+		<!-- name of the queue -->
+		<constructor-arg index="0"
+			value="${customer.requests.input.queue.name}" />
 	</bean>
-	
-	
+
+	<bean id="customerRequestsInputQueue" class="com.github.vincent_fuchs.utils.JmsMessageSender">
+		<property name="jmsTemplate" ref="jmsTemplate" />
+	</bean>
+
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="JMSconnectionFactory" />
+		<property name="defaultDestination" ref="defaultDestination" />
+	</bean>
+
+
 
 	<!-- in memory DB for output -->
 	<bean id="dataSource"
@@ -37,18 +44,19 @@
 		<property name="driverClassName" value="org.h2.Driver" />
 
 		<property name="url"
-			value = "jdbc:h2:mem:test ;
+			value="jdbc:h2:mem:test ;
 				DB_CLOSE_DELAY=-1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=2 " />
 
-			<property name="username" value="sa" />
-			<property name="password" value="" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
 	</bean>
 
 	<jdbc:embedded-database id="dataSource" type="H2">
 		<jdbc:script location="classpath:h2Config/h2Db_config.sql" />
 	</jdbc:embedded-database>
-	
-	
-	<bean id="noMoreMessageActionHandler" class="com.github.vincent_fuchs.utils.NoMoreMessageAssertResultAction" />
-			
+
+
+	<bean id="noMoreMessageActionHandler"
+		class="com.github.vincent_fuchs.utils.NoMoreMessageAssertResultAction" />
+
 </beans>

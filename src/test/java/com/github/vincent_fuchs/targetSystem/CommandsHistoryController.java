@@ -20,9 +20,10 @@ public class CommandsHistoryController {
 		this.shouldThrowExceptionOnReceivingRequests = makeServerUnavailable;
 	}
 
-	public void addCommandHistoryRecord(String customer, int nbCommands) {
 		
-		configuredCommandsPerCustomer.put(customer,nbCommands);
+	public void addAllCommandHistoryRecords(Map<String,Integer> commandsPerCustomer) {
+		
+		configuredCommandsPerCustomer.putAll(commandsPerCustomer);
 		
 	}
 	
