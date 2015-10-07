@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:amq="http://activemq.apache.org/schema/core"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/jms 
+						http://www.springframework.org/schema/jms/spring-jms.xsd
+						http://activemq.apache.org/schema/core 
+						http://activemq.apache.org/schema/core/activemq-core.xsd
+						http://www.springframework.org/schema/jdbc 
+						http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+	<!-- in memory JMS queue for input -->
+
+	<amq:broker id="inputJmsBroker" useJmx="false" 
+									 persistent="false" 
+									 />
+	
+	<!-- brokerURL may be updated programmatically from test, to validate behavior when there's a problem with JMS queue -->
+	<amq:connectionFactory id="JMSconnectionFactory" brokerURL="vm://localhost" />
+
+
+	<bean id="customerRequestsInputQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${customer.requests.input.queue.name}</value>
+		</constructor-arg>
+	</bean>
+	
+	
+
+	<!-- in memory DB for output -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.h2.Driver" />
+
+		<property name="url"
+			value = "jdbc:h2:mem:test ;
+				DB_CLOSE_DELAY=-1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=2 " />
+
+			<property name="username" value="sa" />
+			<property name="password" value="" />
+	</bean>
+
+	<jdbc:embedded-database id="dataSource" type="H2">
+		<jdbc:script location="classpath:h2Config/h2Db_config.sql" />
+	</jdbc:embedded-database>
+	
+	
+	<bean id="noMoreMessageActionHandler" class="com.github.vincent_fuchs.utils.NoMoreMessageAssertResultAction" />
+			
+</beans>
