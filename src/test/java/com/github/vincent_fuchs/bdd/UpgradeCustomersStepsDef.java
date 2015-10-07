@@ -1,5 +1,7 @@
 package com.github.vincent_fuchs.bdd;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,8 @@ import com.icegreen.greenmail.util.ServerSetup;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
 
 @ContextConfiguration(classes = TargetRESTSystem.class, loader = SpringApplicationContextLoader.class)
 @WebIntegrationTest({ "server.port=62984" })
@@ -112,7 +116,9 @@ public class UpgradeCustomersStepsDef {
 	public void we_receive_status_upgrade_requests_for_these_customers(List<CustomerRequest> customerRequests) throws Throwable {
 	   		
 		for(CustomerRequest customerRequest : customerRequests){
-				
+			
+			System.out.println("pushing message for customer "+customerRequest.getName());
+			
 			jmsMessageSender.send(customerRequest.getName()+"#"+customerRequest.getEmail());
 		}
 			
@@ -125,7 +131,33 @@ public class UpgradeCustomersStepsDef {
 		
 	}
 	
+	@When("^customer upgrade batch gets the upgrade requests and we wait \"(.*?)\" seconds$")
+	public void customer_upgrade_batch_gets_the_upgrade_requests_and_we_wait_seconds(int timeout) throws Throwable {
+			
+		Thread.sleep(timeout * 1000);
+		
+	}
 	
+	@Then("^customer loyalty repository gets updated with$")
+	public void customer_localty_repository_gets_updated_with(Map<String,String> expectedCustomerStatuses) throws Throwable {
+	 
+		List<Map<String, Object>> actualCustomerLoyaltyRecords = jdbcTemplate
+				.queryForList("SELECT * FROM CUSTOMERS_LOYALTY");
+
+		assertThat(actualCustomerLoyaltyRecords).hasSize(expectedCustomerStatuses.size());
+		
+		for(Map<String, Object> actualCustomerLoyaltyRecord : actualCustomerLoyaltyRecords){
+			
+			String customerName=(String)actualCustomerLoyaltyRecord.get("name");
+			String actualCustomerLoyalty=(String)actualCustomerLoyaltyRecord.get("loyalty");
+			
+			assertThat(actualCustomerLoyalty).isEqualTo(expectedCustomerStatuses.get(customerName));			
+		}
+
+		
+		
+	}
+
 	
 
 

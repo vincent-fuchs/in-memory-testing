@@ -10,9 +10,8 @@ Feature: Customers can ask to be upgraded. We'll receive their request and depen
       | Alice   | 5          |
       | Bob     | 10         |
       | Praveen | 0          |
-    When customer upgrade batch gets the upgrade requests
-    Then customer localty repository gets updated with
-      | customerName | loyaltyStatus |
+    When customer upgrade batch gets the upgrade requests and we wait "3" seconds
+    Then customer loyalty repository gets updated with 
       | Alice        | silver        |
       | Bob          | gold          |
     And an email is sent to "alice@gmail.com" with subject "you have just been upgraded to silver status"

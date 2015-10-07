@@ -3,8 +3,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
 	xmlns:int-jdbc="http://www.springframework.org/schema/integration/jdbc"
 	xmlns:int-http="http://www.springframework.org/schema/integration/http"
-	xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 						http://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/integration
@@ -18,13 +18,44 @@
 						http://www.springframework.org/schema/aop 
     					http://www.springframework.org/schema/aop/spring-aop.xsd						
     					http://www.springframework.org/schema/tx
-						http://www.springframework.org/schema/tx/spring-tx.xsd">
+						http://www.springframework.org/schema/tx/spring-tx.xsd
+						http://www.springframework.org/schema/integration/jms
+    					http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd">
 
+
+
+	<int-jms:message-driven-channel-adapter id="jmsInboundCustomerRequests"
+		destination="customerUpgradeRequestsQueue" channel="customerUpgradeRequestsChannel"
+		connection-factory="JMSconnectionFactory" message-converter="inputRequestConverter"/>
+		
+		<bean id="inputRequestConverter"
+		class="com.github.vincent_fuchs.converters.InputRequestConverter"/>
+	
+
+	<int:channel id="customerUpgradeRequestsChannel" />
+
+	<int:chain input-channel="customerUpgradeRequestsChannel"
+		output-channel="processedCustomerRequestChannel">
+		<int:service-activator ref="customerUpgradeStatusProcessor"
+			method="upgradeStatus" />
+	</int:chain>
+
+	<bean id="customerUpgradeStatusProcessor"
+		class="com.github.vincent_fuchs.processors.CustomerUpgradeStatusProcessor">
+
+		<property name="host" value="${commandsHistoryService.host}" />
+		<property name="port" value="${commandsHistoryService.port}" />
+		<property name="service" value="${commandsHistoryService.path}" />
+
+
+	</bean>
+
+<int:channel id="processedCustomerRequestChannel" />
 
 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
-	
+
 	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host" value="${email.server.host}" />
 	</bean>
