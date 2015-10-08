@@ -1,19 +1,25 @@
 Feature: Customers can ask to be upgraded. We'll receive their request and depending on their existing number of commands, their loyalty status will be defined
 
   Scenario: Different loyalty status is assigned for customer who request it, based on their command history. If customer has 0 command, he/she can't be upgraded.
-    Given we receive status upgrade requests for these customers
+    #queue check
+    Given we receive status upgrade requests for these customers 
       | name    | email             |
       | Alice   | alice@gmail.com   |
       | Bob     | bob@hotmail.com   |
-      | Praveen | praveen@yahoo.com |
-    And command history for users is as followed
-      | Alice   | 5          |
-      | Bob     | 10         |
-      | Praveen | 0          |
-    When customer upgrade batch gets the upgrade requests and we wait "3" seconds
+   
+      #REST webservice check
+    And command history for users is as followed 
+      | Alice   | 5  |
+      | Bob     | 10 |
+      | Praveen | 0  |
+    When customer upgrade batch gets the upgrade requests and we wait "15" seconds
+       # email check
+    And emails are sent to people with following subject 
+      | recipient            | subject                                      |
+      | alice@gmail.com      | you have just been upgraded to Silver status |
+      | bob@hotmail.com      | you have just been upgraded to Gold status   |
+      | support@my-store.com | invalid upgrade request for customer Praveen |
+ # DB check
     Then customer loyalty repository gets updated with 
-      | Alice        | silver        |
-      | Bob          | gold          |
-    And an email is sent to "alice@gmail.com" with subject "you have just been upgraded to silver status"
-    And an email is sent to "bob@hotmail.com" with subject "you have just been upgraded to gold status"
-    And an email is sent to "support@my-store.com" with subject "invalid upgrade request for customer Praveen"
+      | Alice | Silver |
+      | Bob   | Gold   |

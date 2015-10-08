@@ -12,10 +12,19 @@ public class CustomerUpgradeStatusProcessor {
 	private String port;
 	private String service;
 	
-	public CustomerStatusRequest upgradeStatus(CustomerStatusRequest request){
+	public CustomerStatusRequest upgradeStatus(CustomerStatusRequest request) {
 		
 		Integer nbCommands = restTemplate.getForObject(host+":"+port+"/"+service+"/"+request.getCustomerName(), Integer.class);
 	      
+		if(nbCommands<=0){
+			throw new InvalidCustomerUpgradeRequest("user can't request upgrade since there's no commands history");
+		}
+		else if(nbCommands>5){
+			request.setLoyaltyStatus("Gold");
+		}
+		else if(nbCommands<=5){
+			request.setLoyaltyStatus("Silver");
+		}
 		
 		
 		return request;

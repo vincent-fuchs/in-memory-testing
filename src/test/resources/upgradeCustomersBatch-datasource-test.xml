@@ -13,7 +13,7 @@
 
 	<!-- in memory JMS queue for input -->
 
-	<amq:broker id="inputJmsBroker" useJmx="false" persistent="false" />
+	<amq:broker id="inputJmsBroker" useJmx="false" persistent="false" useShutdownHook="true"/>
 
 	<!-- brokerURL may be updated programmatically from test, to validate behavior 
 		when there's a problem with JMS queue -->

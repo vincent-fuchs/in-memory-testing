@@ -3,9 +3,13 @@ package com.github.vincent_fuchs.bdd;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.jms.ConnectionFactory;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +19,11 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.github.vincent_fuchs.bdd.pojos.CustomerRequest;
+import com.github.vincent_fuchs.bdd.pojos.SentEmails;
 import com.github.vincent_fuchs.targetSystem.CommandsHistoryController;
 import com.github.vincent_fuchs.targetSystem.TargetRESTSystem;
 import com.github.vincent_fuchs.utils.JmsMessageSender;
@@ -51,9 +57,12 @@ public class UpgradeCustomersStepsDef {
 	CommandsHistoryController endpoint;
 			
 	JmsMessageSender jmsMessageSender ;
+	
+	JmsTemplate jmsTemplate ;
    	
 	GreenMail mailServer = new GreenMail(ServerSetup.SMTP);
 	
+	ConnectionFactory connectionFactory;
 
 	
 	@Before(order = 1)
@@ -68,6 +77,9 @@ public class UpgradeCustomersStepsDef {
 		jdbcTemplate = appCtx.getBean(JdbcTemplate.class);
 		
 		jmsMessageSender = appCtx.getBean(JmsMessageSender.class);
+		
+		
+		jmsTemplate=appCtx.getBean(JmsTemplate.class);
 			
 	}
 
@@ -78,12 +90,19 @@ public class UpgradeCustomersStepsDef {
 		properties.getProperty("lso.updateStatusEndpoint.url");
 	}
 
+	
+	@Before(order = 3)
+	public void startGreenMailServer(){
+		mailServer.start();
+	}
+	
 	@Before(order = 4)
 	public void initCustomerLoyaltyTable() throws Exception {
 
 		int nbRowsDeleted = jdbcTemplate.update("DELETE from customers_loyalty");
 		log.info("deleted " + nbRowsDeleted
 				+ " deal(s) in customers_loyalty table before scenario starts");
+		
 	}
 
 	@Before(order = 5)
@@ -93,24 +112,21 @@ public class UpgradeCustomersStepsDef {
 		// in case a test has set this to true, resetting it to false
 		endpoint.setShouldThrowExceptionOnReceivingRequests(false);
 	}
-	
-	@Before(order = 6)
-	public void startGreenMailServer(){
-		mailServer.start();
-	}
+
 	
 	@After(order=1)
 	public void stopGreenMailServer(){
 		mailServer.stop();
 	}
-
-	@After(order=2)
-	public void teardown() throws Exception {
-
-		if (appCtx != null) {
-			appCtx.close();
-		}
-	}
+//	
+//
+//	@After(order=3)
+//	public void teardown() throws Exception {
+//
+//		if (appCtx != null) {
+//			appCtx.close();
+//		}
+//	}
 	
 	@Given("^we receive status upgrade requests for these customers$")
 	public void we_receive_status_upgrade_requests_for_these_customers(List<CustomerRequest> customerRequests) throws Throwable {
@@ -152,8 +168,25 @@ public class UpgradeCustomersStepsDef {
 			String actualCustomerLoyalty=(String)actualCustomerLoyaltyRecord.get("loyalty");
 			
 			assertThat(actualCustomerLoyalty).isEqualTo(expectedCustomerStatuses.get(customerName));			
+		}		
+	}
+	
+	@Then("^emails are sent to people with following subject$")
+	public void emails_are_sent_to_people_with_following_subject(List<SentEmails> expectedSentEmails) throws Throwable {
+	   
+		
+		MimeMessage[] actualSentEmailsFromServer=mailServer.getReceivedMessages();
+		
+		List<SentEmails> actualSentEmailsToCompare=new ArrayList<SentEmails>();
+		
+		for(MimeMessage actualEmail : actualSentEmailsFromServer){
+						
+			actualSentEmailsToCompare.add(new SentEmails(actualEmail.getAllRecipients(),actualEmail.getSubject()));
+					
 		}
-
+		
+		assertThat(actualSentEmailsToCompare).containsAll(expectedSentEmails);
+		
 		
 		
 	}
