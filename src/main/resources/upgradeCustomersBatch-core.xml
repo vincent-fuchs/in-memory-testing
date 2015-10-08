@@ -38,8 +38,8 @@
 
 	<int:channel id="customerUpgradeRequestsChannel" />
 
-	<int:chain input-channel="customerUpgradeRequestsChannel" output-channel="customerRequestWithStatusChannel">
-		<int:service-activator ref="customerUpgradeStatusProcessor"	method="upgradeStatus" />
+	<int:chain input-channel="customerUpgradeRequestsChannel" output-channel="customerRequestWithStatusChannel" >
+		<int:service-activator ref="customerUpgradeStatusProcessor"	method="upgradeStatus"  />
 			<int:service-activator ref="confirmationEmailSender"	method="sendEmail" />				
 	</int:chain>
 
@@ -54,6 +54,8 @@
 		<property name="host" value="${commandsHistoryService.host}" />
 		<property name="port" value="${commandsHistoryService.port}" />
 		<property name="service" value="${commandsHistoryService.path}" />
+		
+		<property name="mailSender" ref="mailSender" />
 
 
 	</bean>
