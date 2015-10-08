@@ -39,6 +39,7 @@ public class UpgradeCustomersBatchErrorHandler {
 		mailMessage.setTo("support@my-store.com");
 		mailMessage.setSubject("invalid upgrade request for customer "
 				+ failedMessage.getPayload().getCustomerName());
+		mailMessage.setText("blabla");
 
 		mailSender.send(mailMessage);
 

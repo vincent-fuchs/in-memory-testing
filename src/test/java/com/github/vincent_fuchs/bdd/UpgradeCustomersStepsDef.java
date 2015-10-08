@@ -94,6 +94,7 @@ public class UpgradeCustomersStepsDef {
 	@Before(order = 3)
 	public void startGreenMailServer(){
 		mailServer.start();
+		System.out.println("mail server started");
 	}
 	
 	@Before(order = 4)
@@ -113,11 +114,11 @@ public class UpgradeCustomersStepsDef {
 		endpoint.setShouldThrowExceptionOnReceivingRequests(false);
 	}
 
-	
-	@After(order=1)
-	public void stopGreenMailServer(){
-		mailServer.stop();
-	}
+//	
+//	@After(order=1)
+//	public void stopGreenMailServer(){
+//		mailServer.stop();
+//	}
 //	
 //
 //	@After(order=3)

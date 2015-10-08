@@ -40,10 +40,10 @@
 
 	<int:chain input-channel="customerUpgradeRequestsChannel" output-channel="customerRequestWithStatusChannel">
 		<int:service-activator ref="customerUpgradeStatusProcessor"	method="upgradeStatus" />
-		<int:service-activator ref="confirmationEmailSender"	method="sendEmail" />					
+			<int:service-activator ref="confirmationEmailSender"	method="sendEmail" />				
 	</int:chain>
 
-	<int:channel id="customerRequestWithStatusChannel" />
+	<int:publish-subscribe-channel id="customerRequestWithStatusChannel" />
 
 	
 	
@@ -83,7 +83,7 @@
 	</bean>
 
 	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-		<property name="host" value="localhost" />
+		<property name="host" value="${email.server.host}" />
 		<property name="port" value="25" />
 	</bean>
 

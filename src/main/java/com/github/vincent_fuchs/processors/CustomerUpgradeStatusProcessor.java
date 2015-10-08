@@ -12,7 +12,7 @@ public class CustomerUpgradeStatusProcessor {
 	private String port;
 	private String service;
 	
-	public CustomerStatusRequest upgradeStatus(CustomerStatusRequest request) {
+	public CustomerStatusRequest upgradeStatus(CustomerStatusRequest request) throws InvalidCustomerUpgradeRequest {
 		
 		Integer nbCommands = restTemplate.getForObject(host+":"+port+"/"+service+"/"+request.getCustomerName(), Integer.class);
 	      
