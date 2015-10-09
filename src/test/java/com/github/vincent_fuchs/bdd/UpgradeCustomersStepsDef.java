@@ -2,7 +2,6 @@ package com.github.vincent_fuchs.bdd;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationContextLoader;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -24,7 +22,6 @@ import com.github.vincent_fuchs.bdd.pojos.SentEmails;
 import com.github.vincent_fuchs.targetSystem.CommandsHistoryController;
 import com.github.vincent_fuchs.targetSystem.TargetRESTSystem;
 import com.github.vincent_fuchs.utils.JmsMessageSender;
-import com.github.vincent_fuchs.utils.SpringContextBuilder;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 
@@ -34,7 +31,13 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
-@ContextConfiguration(classes = TargetRESTSystem.class, loader = SpringApplicationContextLoader.class)
+@ContextConfiguration(classes = TargetRESTSystem.class, 
+					  loader = SpringApplicationContextLoader.class,
+					  locations={"upgradeCustomersBatch-core.xml",
+								 "upgradeCustomersBatch-datasource-test.xml",
+								 "upgradeCustomersBatch-properties-test.xml"}
+					  
+					  )
 @WebIntegrationTest({ "server.port=62984" })
 @EnableAutoConfiguration(exclude = { org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class })
 public class UpgradeCustomersStepsDef {
@@ -42,6 +45,7 @@ public class UpgradeCustomersStepsDef {
 	private static final Logger log = Logger
 			.getLogger(UpgradeCustomersStepsDef.class);
 
+	@Autowired
 	protected ConfigurableApplicationContext appCtx;
 
 	@Autowired
@@ -50,34 +54,19 @@ public class UpgradeCustomersStepsDef {
 	@Autowired
 	CommandsHistoryController endpoint;
 	
+	@Autowired
 	JmsMessageSender jmsMessageSender ;
    	
 	GreenMail mailServer = new GreenMail(ServerSetup.SMTP);
-		
+
+	
 	@Before(order = 1)
-	public void loadSpringCtx() throws IOException {
-		
-		SpringContextBuilder builder = new SpringContextBuilder().usingContext(new ClassPathResource("upgradeCustomersBatch-core.xml"))
-																 .usingContext(new ClassPathResource("upgradeCustomersBatch-datasource-test.xml"))
-																 .usingContext(new ClassPathResource("upgradeCustomersBatch-properties-test.xml"));
-
-		appCtx = builder.build();
-
-		jdbcTemplate = appCtx.getBean(JdbcTemplate.class);
-		
-		jmsMessageSender = appCtx.getBean(JmsMessageSender.class);
-	
-	}
-
-
-	
-	@Before(order = 3)
 	public void startGreenMailServer(){
 		mailServer.start();
 		System.out.println("mail server started");
 	}
 	
-	@Before(order = 4)
+	@Before(order = 2)
 	public void initCustomerLoyaltyTable() throws Exception {
 
 		int nbRowsDeleted = jdbcTemplate.update("DELETE from customers_loyalty");
@@ -86,7 +75,7 @@ public class UpgradeCustomersStepsDef {
 		
 	}
 
-	@Before(order = 5)
+	@Before(order = 3)
 	public void resetTargetHost() throws Exception {
 		endpoint.resetConfiguredCommandsPerCustomer();
 
