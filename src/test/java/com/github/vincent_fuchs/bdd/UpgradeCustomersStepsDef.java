@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
-import javax.jms.ConnectionFactory;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
@@ -19,7 +17,6 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.github.vincent_fuchs.bdd.pojos.CustomerRequest;
@@ -27,7 +24,6 @@ import com.github.vincent_fuchs.bdd.pojos.SentEmails;
 import com.github.vincent_fuchs.targetSystem.CommandsHistoryController;
 import com.github.vincent_fuchs.targetSystem.TargetRESTSystem;
 import com.github.vincent_fuchs.utils.JmsMessageSender;
-import com.github.vincent_fuchs.utils.PropertiesLoader;
 import com.github.vincent_fuchs.utils.SpringContextBuilder;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -51,20 +47,13 @@ public class UpgradeCustomersStepsDef {
 	@Autowired
 	protected JdbcTemplate jdbcTemplate;
 
-	private Properties properties;
-
 	@Autowired
 	CommandsHistoryController endpoint;
-			
-	JmsMessageSender jmsMessageSender ;
 	
-	JmsTemplate jmsTemplate ;
+	JmsMessageSender jmsMessageSender ;
    	
 	GreenMail mailServer = new GreenMail(ServerSetup.SMTP);
-	
-	ConnectionFactory connectionFactory;
-
-	
+		
 	@Before(order = 1)
 	public void loadSpringCtx() throws IOException {
 		
@@ -77,18 +66,9 @@ public class UpgradeCustomersStepsDef {
 		jdbcTemplate = appCtx.getBean(JdbcTemplate.class);
 		
 		jmsMessageSender = appCtx.getBean(JmsMessageSender.class);
-		
-		
-		jmsTemplate=appCtx.getBean(JmsTemplate.class);
-			
+	
 	}
 
-	@Before(order = 2)
-	public void initProperties() throws IOException {
-
-		properties = PropertiesLoader.load("/upgradeCustomersBatch-test.properties");
-		properties.getProperty("lso.updateStatusEndpoint.url");
-	}
 
 	
 	@Before(order = 3)
@@ -114,20 +94,11 @@ public class UpgradeCustomersStepsDef {
 		endpoint.setShouldThrowExceptionOnReceivingRequests(false);
 	}
 
-//	
-//	@After(order=1)
-//	public void stopGreenMailServer(){
-//		mailServer.stop();
-//	}
-//	
-//
-//	@After(order=3)
-//	public void teardown() throws Exception {
-//
-//		if (appCtx != null) {
-//			appCtx.close();
-//		}
-//	}
+	
+	@After(order=1)
+	public void stopGreenMailServer(){
+		mailServer.stop();
+	}
 	
 	@Given("^we receive status upgrade requests for these customers$")
 	public void we_receive_status_upgrade_requests_for_these_customers(List<CustomerRequest> customerRequests) throws Throwable {
@@ -187,8 +158,6 @@ public class UpgradeCustomersStepsDef {
 		}
 		
 		assertThat(actualSentEmailsToCompare).containsAll(expectedSentEmails);
-		
-		
 		
 	}
 

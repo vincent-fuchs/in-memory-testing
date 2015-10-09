@@ -55,8 +55,4 @@
 		<jdbc:script location="classpath:h2Config/h2Db_config.sql" />
 	</jdbc:embedded-database>
 
-
-	<bean id="noMoreMessageActionHandler"
-		class="com.github.vincent_fuchs.utils.NoMoreMessageAssertResultAction" />
-
 </beans>

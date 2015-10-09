@@ -66,15 +66,7 @@
     data-source="dataSource"
     channel="customerRequestWithStatusChannel"
    />
-  
 
-	<int:service-activator input-channel="errorChannel"
-		ref="customerUpgradeBatchErrorHandler" method="handleError" />
-
-
-	<bean id="customerUpgradeBatchErrorHandler" class="com.github.vincent_fuchs.UpgradeCustomersBatchErrorHandler" >
-		<property name="mailSender" ref="mailSender" />
-	</bean> 
 	
 	<bean id="confirmationEmailSender" class="com.github.vincent_fuchs.ConfirmationEmailSender" >
 		<property name="mailSender" ref="mailSender" />
