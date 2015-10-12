@@ -12,7 +12,7 @@ Feature: Customers can ask to be upgraded. We'll receive their request and depen
       | Alice   | 5  |
       | Bob     | 10 |
       | Praveen | 0  |
-    When customer upgrade batch gets the upgrade requests and we wait "1" seconds
+    When customer upgrade batch gets the upgrade requests and we wait "3" seconds
     # DB check
     Then customer loyalty repository gets updated with
       | Alice | Silver |
@@ -23,3 +23,4 @@ Feature: Customers can ask to be upgraded. We'll receive their request and depen
       | alice@gmail.com      | you have just been upgraded to Silver status |
       | bob@hotmail.com      | you have just been upgraded to Gold status   |
       | support@my-store.com | invalid upgrade request for customer Praveen |
+	And an "error" message gets logged saying "invalid upgrade request" 

@@ -1,8 +1,12 @@
 package com.github.vincent_fuchs.processors;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.web.client.RestTemplate;
+
+import ch.qos.logback.classic.Logger;
+
 
 import pojos.CustomerStatusRequest;
 
@@ -11,6 +15,9 @@ public class CustomerUpgradeStatusProcessor {
 	private RestTemplate restTemplate=new RestTemplate();
 
 	private MailSender mailSender;
+	
+	private static final Logger log = (Logger) LoggerFactory.getLogger(CustomerUpgradeStatusProcessor.class);
+
 
 	public void setMailSender(MailSender mailSender) {
 		this.mailSender = mailSender;
@@ -27,6 +34,8 @@ public class CustomerUpgradeStatusProcessor {
 	      
 		if(nbCommands<=0){
 
+			log.error("invalid upgrade request");
+			
 			SimpleMailMessage mailMessage = new SimpleMailMessage();
 			mailMessage.setTo("support@my-store.com");
 			mailMessage.setSubject("invalid upgrade request for customer "

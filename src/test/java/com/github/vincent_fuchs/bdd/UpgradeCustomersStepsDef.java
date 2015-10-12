@@ -8,7 +8,16 @@ import java.util.Map;
 
 import javax.mail.internet.MimeMessage;
 
-import org.apache.log4j.Logger;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.LayoutBase;
+import ch.qos.logback.core.layout.EchoLayout;
+
+import org.apache.log4j.PatternLayout;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationContextLoader;
@@ -17,11 +26,21 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
+
+
+
+
+
+
+
+
 import com.github.vincent_fuchs.bdd.pojos.CustomerRequest;
 import com.github.vincent_fuchs.bdd.pojos.SentEmails;
+import com.github.vincent_fuchs.processors.CustomerUpgradeStatusProcessor;
 import com.github.vincent_fuchs.targetSystem.CommandsHistoryController;
 import com.github.vincent_fuchs.targetSystem.TargetRESTSystem;
 import com.github.vincent_fuchs.utils.JmsMessageSender;
+import com.github.vincent_fuchs.utils.MemoryAppender;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 
@@ -42,8 +61,7 @@ import cucumber.api.java.en.When;
 @EnableAutoConfiguration(exclude = { org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class })
 public class UpgradeCustomersStepsDef {
 
-	private static final Logger log = Logger
-			.getLogger(UpgradeCustomersStepsDef.class);
+	private static final Logger log = (Logger) LoggerFactory.getLogger(UpgradeCustomersStepsDef.class);
 
 	@Autowired
 	protected ConfigurableApplicationContext appCtx;
@@ -52,12 +70,14 @@ public class UpgradeCustomersStepsDef {
 	protected JdbcTemplate jdbcTemplate;
 
 	@Autowired
-	CommandsHistoryController endpoint;
+	private CommandsHistoryController endpoint;
 	
 	@Autowired
-	JmsMessageSender jmsMessageSender ;
+	private JmsMessageSender jmsMessageSender ;
+	
+	private MemoryAppender memoryAppender;
    	
-	GreenMail mailServer = new GreenMail(ServerSetup.SMTP);
+	private GreenMail mailServer = new GreenMail(ServerSetup.SMTP);
 
 	
 	@Before(order = 1)
@@ -83,6 +103,27 @@ public class UpgradeCustomersStepsDef {
 		endpoint.setShouldThrowExceptionOnReceivingRequests(false);
 	}
 
+	
+	@Before(order = 4)
+	public void registerLoggerListener() {
+		
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+		PatternLayoutEncoder ple = new PatternLayoutEncoder();
+		ple.setContext(lc);
+        ple.setPattern("%level - %m");
+        ple.start();  	 
+		 
+		memoryAppender = new MemoryAppender();
+		memoryAppender.setEncoder(ple);
+		memoryAppender.setContext(lc);
+		memoryAppender.start();
+	
+		Logger processorLog = (Logger) LoggerFactory.getLogger(CustomerUpgradeStatusProcessor.class);
+				
+		processorLog.addAppender(memoryAppender);
+	
+	}
 	
 	@After(order=1)
 	public void stopGreenMailServer(){
@@ -149,6 +190,14 @@ public class UpgradeCustomersStepsDef {
 		assertThat(actualSentEmailsToCompare).containsAll(expectedSentEmails);
 		
 	}
+	
+	@Then("^an \"(.*?)\" message gets logged saying \"(.*?)\"$")
+	public void an_message_gets_logged_saying(String expectedLogLevel, String expectedLogMessage) throws Throwable {
+
+		assertThat(memoryAppender.getRenderedOutput()).containsIgnoringCase(expectedLogLevel+" - "+expectedLogMessage);
+		
+	}
+
 
 	
 

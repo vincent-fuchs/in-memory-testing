@@ -5,6 +5,8 @@
 	<logger name="org.springframework.integration" level="DEBUG" />
 	
 	<logger name="com.icegreen" level="DEBUG" />
+	
+	<logger name="com.github.vincent_fuchs.processors" level="DEBUG" />
 
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender" />
 
