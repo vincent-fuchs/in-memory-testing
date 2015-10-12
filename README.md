@@ -33,7 +33,7 @@ Scenario is available here, with an example showing the business rule and the ot
 
 ## Disclaimer
 
-* You may find the implementation "not great", not leveraging enough on Spring integration model.. But the good thing is that now that you have an integration test that covers everything, you can improve the code and/or config, and run the test to know if you broke something. 
+* You may find the implementation "not great", not leveraging enough on Spring integration model.. But the good thing is that now that you have an integration test that covers everything, you can improve the code and/or config, and run the test to know if you broke something : you know you have a first version, that is not great but works. Maybe that's enough to go to production, at least for now ! If you need to rework  it (to improve scalability for instance) next month or next year, you can safely do so, because you'll know in few seconds if you broke something.
 
 * Depending on the machine on which you run the test, you may have to increase the waiting time in the scenario 
 
