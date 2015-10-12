@@ -8,15 +8,6 @@ import java.util.Map;
 
 import javax.mail.internet.MimeMessage;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.LayoutBase;
-import ch.qos.logback.core.layout.EchoLayout;
-
-import org.apache.log4j.PatternLayout;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -26,13 +17,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
-
-
-
-
-
-
-
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 
 import com.github.vincent_fuchs.bdd.pojos.CustomerRequest;
 import com.github.vincent_fuchs.bdd.pojos.SentEmails;
