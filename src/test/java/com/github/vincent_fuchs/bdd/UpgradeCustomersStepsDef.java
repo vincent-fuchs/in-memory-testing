@@ -41,8 +41,7 @@ import cucumber.api.java.en.When;
 					  loader = SpringApplicationContextLoader.class,
 					  locations={"upgradeCustomersBatch-core.xml",
 								 "upgradeCustomersBatch-datasource-test.xml",
-								 "upgradeCustomersBatch-properties-test.xml"}
-					  
+								 "upgradeCustomersBatch-properties-test.xml"}	  
 					  )
 @WebIntegrationTest({ "server.port=62984" })
 @EnableAutoConfiguration(exclude = { org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class })
@@ -92,7 +91,7 @@ public class UpgradeCustomersStepsDef {
 
 	
 	@Before(order = 4)
-	public void registerLoggerListener() {
+	public void configureAndRegisterInMemoryLogger() {
 		
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 
@@ -156,7 +155,7 @@ public class UpgradeCustomersStepsDef {
 			String customerName=(String)actualCustomerLoyaltyRecord.get("name");
 			String actualCustomerLoyalty=(String)actualCustomerLoyaltyRecord.get("loyalty");
 			
-			assertThat(actualCustomerLoyalty).isEqualTo(expectedCustomerStatuses.get(customerName));			
+			assertThat(actualCustomerLoyalty).as("for customer "+customerName).isEqualTo(expectedCustomerStatuses.get(customerName));			
 		}		
 	}
 	
@@ -174,7 +173,7 @@ public class UpgradeCustomersStepsDef {
 					
 		}
 		
-		assertThat(actualSentEmailsToCompare).containsAll(expectedSentEmails);
+		assertThat(actualSentEmailsToCompare).containsExactlyElementsOf(expectedSentEmails);
 		
 	}
 	
@@ -184,9 +183,4 @@ public class UpgradeCustomersStepsDef {
 		assertThat(memoryAppender.getRenderedOutput()).containsIgnoringCase(expectedLogLevel+" - "+expectedLogMessage);
 		
 	}
-
-
-	
-
-
 }
