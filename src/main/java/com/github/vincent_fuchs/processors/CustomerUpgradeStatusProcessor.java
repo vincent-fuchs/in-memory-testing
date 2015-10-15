@@ -58,32 +58,16 @@ public class CustomerUpgradeStatusProcessor {
 		return request;
 	}
 
-	public RestTemplate getRestTemplate() {
-		return restTemplate;
-	}
-
 	public void setRestTemplate(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
-	}
-
-	public String getHost() {
-		return host;
 	}
 
 	public void setHost(String host) {
 		this.host = host;
 	}
 
-	public String getPort() {
-		return port;
-	}
-
 	public void setPort(String port) {
 		this.port = port;
-	}
-
-	public String getService() {
-		return service;
 	}
 
 	public void setService(String service) {
