@@ -1,6 +1,5 @@
 package com.github.vincent_fuchs;
 
-import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -16,8 +15,6 @@ public class ConfirmationEmailSender {
 
 	public CustomerStatusRequest sendEmail(CustomerStatusRequest request) {
 	
-		
-
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
 		mailMessage.setTo(request.getCustomerEmail());
 		mailMessage.setSubject("you have just been upgraded to "+request.getLoyaltyStatus()+" status");
@@ -26,7 +23,6 @@ public class ConfirmationEmailSender {
 		mailSender.send(mailMessage);
 		
 		return request;
-
 	}
 
 }
