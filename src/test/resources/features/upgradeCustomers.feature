@@ -14,7 +14,7 @@ and depending on their existing number of commands, their loyalty status will be
       | Alice   | 5  |
       | Bob     | 10 |
       | Praveen | 0  |
-    When customer upgrade batch gets the upgrade requests and we wait "1" seconds
+    When customer upgrade batch gets the upgrade requests and we wait "3" seconds
     # DB check
     Then customer loyalty repository gets updated with
       | Alice | Silver |
