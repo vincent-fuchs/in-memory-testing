@@ -1,8 +1,8 @@
 Feature: Customers can ask to be upgraded. We will receive their requests 
 and depending on their existing number of commands, their loyalty status will be defined
 
-  Scenario: Different loyalty status is assigned for customer who request it, based on their command history. 
-  If customer has 0 command, he/she can't be upgraded.
+  Scenario: Different loyalty status is assigned for customer who request it, based on their command history
+  If customer has 0 command, he/she can't be upgraded
     #queue check
     Given we receive status upgrade requests for these customers
       | name    | email             |
