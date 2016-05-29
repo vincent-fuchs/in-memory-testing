@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.mail.internet.MimeMessage;
 
+import com.icegreen.greenmail.util.ServerSetupTest;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -63,13 +64,12 @@ public class UpgradeCustomersStepsDef {
 	
 	private MemoryAppender memoryAppender;
    	
-	private GreenMail mailServer = new GreenMail(ServerSetup.SMTP);
+	private GreenMail mailServer = new GreenMail(ServerSetupTest.SMTP);;
 
-	
 	@Before(order = 1)
 	public void startGreenMailServer(){
 		mailServer.start();
-		System.out.println("mail server started");
+		System.out.println("mail server started on port "+mailServer.getSmtp().getPort());
 	}
 	
 	@Before(order = 2)
