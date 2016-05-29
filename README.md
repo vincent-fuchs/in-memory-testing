@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/vincent-fuchs/in-memory-testing.svg?branch=master)](https://travis-ci.org/vincent-fuchs/in-memory-testing) 
+
+[![Coverage Status](https://coveralls.io/repos/github/vincent-fuchs/in-memory-testing/badge.svg?branch=master)](https://coveralls.io/github/vincent-fuchs/in-memory-testing?branch=master)
+
 This sample application shows how to use various libraries to perform efficient integration testing using in memory components.
 
 ## What the application does, and what we need to test
