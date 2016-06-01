@@ -36,21 +36,7 @@
 		<property name="defaultDestination" ref="customerUpgradeRequestsQueue" />
 	</bean>
 
-
-
 	<!-- in memory DB for output -->
-	<bean id="dataSource"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="org.h2.Driver" />
-
-		<property name="url"
-			value="jdbc:h2:mem:test ;
-				DB_CLOSE_DELAY=-1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=2 " />
-
-		<property name="username" value="sa" />
-		<property name="password" value="" />
-	</bean>
-
 	<jdbc:embedded-database id="dataSource" type="H2">
 		<jdbc:script location="classpath:h2Config/h2Db_config.sql" />
 	</jdbc:embedded-database>
